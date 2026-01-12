@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyPace Study</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --bg-slate: #f8fafc;
+            --bg-gray: #f3f4f6;
+            --white: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --text-light: #9ca3af;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-slate);
+            color: var(--text-main);
+            max-width: 448px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        main {
+            flex-grow: 1;
+            padding: 1rem;
+            margin-bottom: 5rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Card Style */
+        .card {
+            background: var(--white);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+        }
+
+        /* Timer Styles */
+        .timer-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        svg {
+            width: 16rem;
+            height: 16rem;
+        }
+
+        .circle-bg {
+            color: var(--bg-gray);
+            stroke-width: 8;
+            stroke: currentColor;
+            fill: transparent;
+        }
+
+        .progress-ring__circle {
+            color: var(--primary);
+            stroke-width: 8;
+            stroke-dasharray: 691;
+            stroke-dashoffset: 0;
+            stroke-linecap: round;
+            stroke: currentColor;
+            fill: transparent;
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .timer-info {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .timer-status {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-gray {
+            background-color: var(--bg-gray);
+            color: var(--text-muted);
+        }
+
+        /* Flashcard Styles */
+        .group-selector-area {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: none;
+        }
+        .group-selector-area::-webkit-scrollbar { display: none; }
+
+        .group-pill {
+            padding: 0.5rem 1rem;
+            background: var(--white);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .group-pill.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .flashcard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .flashcard-display {
+            position: relative;
+            width: 100%;
+            height: 16rem;
+            perspective: 1000px;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+            background: var(--white);
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            border: 2px solid #eef2ff;
+        }
+
+        .flashcard-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .btn-delete-card {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+        }
+
+        .flashcard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem;
+        }
+
+        /* Todo Styles */
+        .todo-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin: 1.5rem 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--white);
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            margin-bottom: 0.5rem;
+            border: 1px solid #f1f5f9;
+        }
+
+        .todo-text.done {
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+
+        /* Switch UI */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-gray);
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .switch-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.75rem;
+            z-index: 50;
+            max-width: 448px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .input-field {
+            width: 100%;
+            background-color: var(--bg-slate);
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            outline: none;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="app-title">MyPace Study</h1>
+    </header>
+
+    <main>
+        <!-- Timer Section -->
+        <section id="timer" class="tab-content active">
+            <div class="card">
+                <div class="timer-container">
+                    <svg viewBox="0 0 256 256">
+                        <circle class="circle-bg" r="110" cx="128" cy="128" />
+                        <circle id="timer-progress" class="progress-ring__circle" r="110" cx="128" cy="128" />
+                    </svg>
+                    <div class="timer-info">
+                        <div class="timer-display" id="timer-display">25:00</div>
+                        <div id="timer-status" class="timer-status">Focus</div>
+                    </div>
+                </div>
+                <div class="timer-controls">
+                    <button id="timer-toggle" class="btn btn-primary">スタート</button>
+                    <button id="timer-reset" class="btn btn-gray">リセット</button>
+                </div>
+                
+                <div style="text-align: left; border-top: 1px solid #eee; padding-top: 1rem;">
+                    <div class="switch-container">
+                        <span class="switch-label">マナーモード (消音)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="silent-mode-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <p style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem;">設定 (分)</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        <input type="number" id="focus-input" class="input-field" placeholder="集中">
+                        <input type="number" id="break-input" class="input-field" placeholder="休憩">
+                    </div>
+                    <button onclick="applyTimerSettings()" style="width: 100%; background: #333; color: white; border: none; padding: 0.75rem; border-radius: 0.75rem; cursor: pointer; font-weight: 600;">保存してリセット</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flashcards Section -->
+        <section id="flashcards" class="tab-content">
+            <div class="group-selector-area" id="group-tabs"></div>
+            <div class="flashcard-header">
+                <h2 style="font-size: 1rem; font-weight: 700;">カード管理</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button onclick="toggleGroupModal()" style="font-size: 0.7rem; background: #eee; border: none; padding: 0.3rem 0.6rem; border-radius: 0.5rem; cursor: pointer;">+ グループ</button>
+                    <button onclick="toggleCardModal()" style="background: var(--primary); color: white; border: none; width: 2rem; height: 2rem; border-radius: 50%; cursor: pointer;">+</button>
+                </div>
+            </div>
+            <div id="card-display" class="flashcard-display">
+                <div id="card-inner" class="flashcard-inner">
+                    <p id="card-text" class="flashcard-text">カードがありません</p>
+                    <button id="delete-card-btn" onclick="deleteCurrentCard(event)" class="btn-delete-card">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flashcard-nav">
+                <button onclick="prevCard()" style="background:none; border:none; color:var(--primary); font-weight:700; cursor:pointer;">←</button>
+                <span id="card-counter" class="counter-text">0 / 0</span>
+                <button onclick="nextCard()" style="background:none; border:none; color:var(--primary); font-weight:700; cursor:pointer;">→</button>
+            </div>
+        </section>
+
+        <!-- Todo Section -->
+        <section id="todo" class="tab-content">
+            <div class="card" style="text-align: left; padding: 1.5rem;">
+                <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">学習タスク</h2>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                    <input type="text" id="todo-input" class="input-field" style="margin-bottom:0;" placeholder="新しいタスク...">
+                    <button id="add-todo" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.75rem; cursor: pointer;">追加</button>
+                </div>
+                <div class="todo-section-title"><span>●</span> 進行中</div>
+                <div id="ongoing-list"></div>
+                <div class="todo-section-title"><span>✓</span> 完了済み</div>
+                <div id="completed-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Navigation -->
+    <nav class="bottom-nav">
+        <button onclick="switchTab('timer')" id="nav-timer" class="nav-item active">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <span>タイマー</span>
+        </button>
+        <button onclick="switchTab('flashcards')" id="nav-flashcards" class="nav-item">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+            <span>カード</span>
+        </button>
+        <button onclick="switchTab('todo')" id="nav-todo" class="nav-item">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+            <span>タスク</span>
+        </button>
+    </nav>
+
+    <!-- Modals -->
+    <div id="card-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>カード追加</h3>
+            <select id="card-group-select" class="input-field"></select>
+            <textarea id="card-q" class="input-field" placeholder="問題" rows="2"></textarea>
+            <textarea id="card-a" class="input-field" placeholder="答え" rows="2"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                <button onclick="toggleCardModal()">閉じる</button>
+                <button onclick="addCard()" style="background:var(--primary); color:white; border:none; padding:0.4rem 1rem; border-radius:0.5rem;">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="group-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>グループ作成</h3>
+            <input type="text" id="group-name-input" class="input-field" placeholder="グループ名">
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                <button onclick="toggleGroupModal()">閉じる</button>
+                <button onclick="addGroup()" style="background:var(--primary); color:white; border:none; padding:0.4rem 1rem; border-radius:0.5rem;">作成</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        let cards = JSON.parse(localStorage.getItem('study_cards')) || [];
+        let groups = JSON.parse(localStorage.getItem('study_groups')) || ["すべて"];
+        let todos = JSON.parse(localStorage.getItem('study_todos')) || [];
+        let timerSettings = JSON.parse(localStorage.getItem('study_timer_settings')) || { focus: 25, break: 5, silent: false };
+        
+        let activeGroup = "すべて";
+        let currentCardIndex = 0;
+        let isCardFlipped = false;
+
+        // --- AUDIO ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let isAudioEnabled = false;
+
+        function playAlarm() {
+            if (timerSettings.silent || !isAudioEnabled) return;
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+            oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.5); // A4
+            
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+            
+            // 2回鳴らす
+            setTimeout(() => {
+                const osc2 = audioCtx.createOscillator();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(880, audioCtx.currentTime);
+                osc2.connect(gainNode);
+                osc2.start();
+                osc2.stop(audioCtx.currentTime + 0.5);
+            }, 600);
+        }
+
+        // --- TIMER ---
+        let isFocusMode = true;
+        let timerSeconds = timerSettings.focus * 60;
+        let timerInterval = null;
+        const CIRCUMFERENCE = 691;
+
+        document.getElementById('focus-input').value = timerSettings.focus;
+        document.getElementById('break-input').value = timerSettings.break;
+        document.getElementById('silent-mode-toggle').checked = timerSettings.silent;
+
+        document.getElementById('silent-mode-toggle').onchange = function() {
+            timerSettings.silent = this.checked;
+            localStorage.setItem('study_timer_settings', JSON.stringify(timerSettings));
+        };
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            document.getElementById('timer-display').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            const total = (isFocusMode ? timerSettings.focus : timerSettings.break) * 60;
+            const offset = CIRCUMFERENCE - (timerSeconds / total) * CIRCUMFERENCE;
+            document.getElementById('timer-progress').style.strokeDashoffset = isNaN(offset) ? 0 : offset;
+            
+            const status = document.getElementById('timer-status');
+            status.textContent = isFocusMode ? "Focus" : "Break";
+            status.style.color = isFocusMode ? "var(--primary)" : "var(--secondary)";
+            document.getElementById('timer-progress').style.color = isFocusMode ? "var(--primary)" : "var(--secondary)";
+        }
+
+        function applyTimerSettings() {
+            timerSettings.focus = parseInt(document.getElementById('focus-input').value) || 25;
+            timerSettings.break = parseInt(document.getElementById('break-input').value) || 5;
+            localStorage.setItem('study_timer_settings', JSON.stringify(timerSettings));
+            resetTimer();
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            isFocusMode = true;
+            timerSeconds = timerSettings.focus * 60;
+            document.getElementById('timer-toggle').textContent = 'スタート';
+            updateTimerDisplay();
+        }
+
+        document.getElementById('timer-toggle').onclick = function() {
+            // 初回クリック時にAudioContextを再開（ブラウザ制限対策）
+            if (!isAudioEnabled) {
+                audioCtx.resume();
+                isAudioEnabled = true;
+            }
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                this.textContent = '再開';
+            } else {
+                this.textContent = '一時停止';
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        
+                        playAlarm(); // アラームを鳴らす
+                        
+                        isFocusMode = !isFocusMode;
+                        timerSeconds = (isFocusMode ? timerSettings.focus : timerSettings.break) * 60;
+                        this.textContent = 'スタート';
+                        updateTimerDisplay();
+                    }
+                }, 1000);
+            }
+        };
+        document.getElementById('timer-reset').onclick = resetTimer;
+
+        // --- TABS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('nav-' + tabId).classList.add('active');
+        }
+
+        // --- FLASHCARDS & GROUPS ---
+        function toggleGroupModal() {
+            const m = document.getElementById('group-modal');
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function addGroup() {
+            const name = document.getElementById('group-name-input').value.trim();
+            if (name && !groups.includes(name)) {
+                groups.push(name);
+                localStorage.setItem('study_groups', JSON.stringify(groups));
+                document.getElementById('group-name-input').value = '';
+                renderGroups();
+                toggleGroupModal();
+            }
+        }
+
+        function renderGroups() {
+            const container = document.getElementById('group-tabs');
+            container.innerHTML = '';
+            groups.forEach(g => {
+                const pill = document.createElement('div');
+                pill.className = `group-pill ${activeGroup === g ? 'active' : ''}`;
+                pill.textContent = g;
+                pill.onclick = () => {
+                    activeGroup = g;
+                    currentCardIndex = 0;
+                    isCardFlipped = false;
+                    renderGroups();
+                    updateCardDisplay();
+                };
+                container.appendChild(pill);
+            });
+
+            const select = document.getElementById('card-group-select');
+            select.innerHTML = '';
+            groups.filter(g => g !== "すべて").forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g;
+                select.appendChild(opt);
+            });
+        }
+
+        function toggleCardModal() {
+            const m = document.getElementById('card-modal');
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function addCard() {
+            const group = document.getElementById('card-group-select').value;
+            const q = document.getElementById('card-q').value.trim();
+            const a = document.getElementById('card-a').value.trim();
+            if (q && a && group) {
+                cards.push({ q, a, group });
+                localStorage.setItem('study_cards', JSON.stringify(cards));
+                document.getElementById('card-q').value = '';
+                document.getElementById('card-a').value = '';
+                toggleCardModal();
+                updateCardDisplay();
+            }
+        }
+
+        function getFilteredCards() {
+            return activeGroup === "すべて" ? cards : cards.filter(c => c.group === activeGroup);
+        }
+
+        function updateCardDisplay() {
+            const filtered = getFilteredCards();
+            const textEl = document.getElementById('card-text');
+            const counterEl = document.getElementById('card-counter');
+            const deleteBtn = document.getElementById('delete-card-btn');
+            
+            if (filtered.length === 0) {
+                textEl.textContent = activeGroup === "すべて" ? "カードを追加してください" : `「${activeGroup}」にはカードがありません`;
+                counterEl.textContent = "0 / 0";
+                deleteBtn.style.display = 'none';
+                return;
+            }
+
+            deleteBtn.style.display = 'block';
+            const card = filtered[currentCardIndex];
+            textEl.textContent = isCardFlipped ? card.a : card.q;
+            textEl.style.color = isCardFlipped ? 'var(--secondary)' : 'var(--text-main)';
+            counterEl.textContent = `${currentCardIndex + 1} / ${filtered.length}`;
+        }
+
+        document.getElementById('card-display').onclick = () => {
+            if (getFilteredCards().length > 0) {
+                isCardFlipped = !isCardFlipped;
+                updateCardDisplay();
+            }
+        };
+
+        function nextCard() {
+            const len = getFilteredCards().length;
+            if (len === 0) return;
+            currentCardIndex = (currentCardIndex + 1) % len;
+            isCardFlipped = false;
+            updateCardDisplay();
+        }
+
+        function prevCard() {
+            const len = getFilteredCards().length;
+            if (len === 0) return;
+            currentCardIndex = (currentCardIndex - 1 + len) % len;
+            isCardFlipped = false;
+            updateCardDisplay();
+        }
+
+        function deleteCurrentCard(e) {
+            e.stopPropagation();
+            if (confirm('このカードを削除しますか？')) {
+                const filtered = getFilteredCards();
+                const cardToDelete = filtered[currentCardIndex];
+                cards = cards.filter(c => c !== cardToDelete);
+                localStorage.setItem('study_cards', JSON.stringify(cards));
+                if (currentCardIndex >= getFilteredCards().length && currentCardIndex > 0) {
+                    currentCardIndex--;
+                }
+                isCardFlipped = false;
+                updateCardDisplay();
+            }
+        }
+
+        // --- TODO ---
+        function renderTodos() {
+            const ongoing = document.getElementById('ongoing-list');
+            const completed = document.getElementById('completed-list');
+            ongoing.innerHTML = '';
+            completed.innerHTML = '';
+
+            todos.forEach((t, i) => {
+                const div = document.createElement('div');
+                div.className = 'todo-item';
+                div.innerHTML = `
+                    <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${i})" style="width:1.2rem; height:1.2rem; cursor:pointer;">
+                    <span class="todo-text ${t.done ? 'done' : ''}" style="flex:1; margin-left:0.7rem;">${t.text}</span>
+                    <button onclick="deleteTodo(${i})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.7rem;">削除</button>
+                `;
+                if (t.done) completed.appendChild(div);
+                else ongoing.appendChild(div);
+            });
+        }
+
+        document.getElementById('add-todo').onclick = () => {
+            const val = document.getElementById('todo-input').value.trim();
+            if (val) {
+                todos.push({ text: val, done: false });
+                localStorage.setItem('study_todos', JSON.stringify(todos));
+                document.getElementById('todo-input').value = '';
+                renderTodos();
+            }
+        };
+
+        window.toggleTodo = (i) => {
+            todos[i].done = !todos[i].done;
+            localStorage.setItem('study_todos', JSON.stringify(todos));
+            renderTodos();
+        };
+
+        window.deleteTodo = (i) => {
+            todos.splice(i, 1);
+            localStorage.setItem('study_todos', JSON.stringify(todos));
+            renderTodos();
+        };
+
+        // --- INIT ---
+        updateTimerDisplay();
+        renderGroups();
+        updateCardDisplay();
+        renderTodos();
+    </script>
+</body>
+</html>
+
