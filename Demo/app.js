@@ -332,5 +332,3 @@
 
         // --- INIT ---
         updateTimerDisplay(); renderGroups(); updateCardDisplay(); renderTodos(); renderStats()b;
-    </script>
-</body>
