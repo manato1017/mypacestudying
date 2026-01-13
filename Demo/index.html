@@ -59,7 +59,7 @@
         main {
             flex-grow: 1;
             padding: 0.75rem;
-            margin-bottom: 4rem; /* Adjusted for smaller nav */
+            margin-bottom: 4rem;
         }
 
         .tab-content {
@@ -78,7 +78,7 @@
             margin-bottom: 0.75rem;
         }
 
-        /* Timer Styles - Scaled for Mobile */
+        /* Timer Styles */
         .timer-container {
             position: relative;
             display: inline-flex;
@@ -87,9 +87,9 @@
             margin-bottom: 1rem;
         }
 
-        svg {
-            width: 14rem;
-            height: 14rem;
+        svg.timer-ring {
+            width: 13rem;
+            height: 13rem;
         }
 
         .circle-bg {
@@ -149,6 +149,9 @@
             cursor: pointer;
         }
 
+        .btn-primary { background-color: var(--primary); color: var(--white); }
+        .btn-gray { background-color: var(--bg-gray); color: var(--text-muted); }
+
         /* Flashcard Styles */
         .group-selector-area {
             display: flex;
@@ -156,7 +159,6 @@
             margin-bottom: 0.75rem;
             overflow-x: auto;
             padding-bottom: 0.4rem;
-            -ms-overflow-style: none;
             scrollbar-width: none;
         }
         .group-selector-area::-webkit-scrollbar { display: none; }
@@ -197,14 +199,37 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1.25rem;
+            padding: 1.5rem;
             position: relative;
         }
 
         .flashcard-text {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 600;
             word-break: break-all;
+            padding: 0 1rem;
+        }
+
+        .btn-delete-card {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: #fff5f5;
+            border: none;
+            color: var(--danger);
+            width: 1.8rem;
+            height: 1.8rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .btn-delete-card svg {
+            width: 1rem;
+            height: 1rem;
         }
 
         /* Todo Styles */
@@ -219,7 +244,87 @@
             font-size: 0.9rem;
         }
 
-        /* Bottom Nav - COMPACT FOR MOBILE */
+        .todo-info {
+            flex: 1;
+            margin-left: 0.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .todo-date {
+            font-size: 0.65rem;
+            color: var(--text-light);
+        }
+
+        .ongoing-tasks-container, .completed-tasks-container {
+            width: 100%;
+        }
+
+        .completed-tasks-container span {
+            text-decoration: none !important;
+            color: var(--text-light);
+        }
+
+        /* Statistics Styles */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .chart-container {
+            height: 150px;
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding-top: 20px;
+            margin-top: 10px;
+        }
+
+        .chart-bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chart-bar {
+            width: 12px;
+            background: var(--primary);
+            border-radius: 4px 4px 0 0;
+            min-height: 2px;
+            transition: height 0.5s ease;
+        }
+
+        .chart-day {
+            font-size: 0.6rem;
+            color: var(--text-light);
+        }
+
+        /* Bottom Nav */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -229,11 +334,11 @@
             border-top: 1px solid #e5e7eb;
             display: flex;
             justify-content: space-around;
-            padding: 0.4rem 0.25rem; /* Reduced padding */
+            padding: 0.4rem 0.1rem;
             z-index: 50;
             max-width: 448px;
             margin: 0 auto;
-            height: 3.5rem; /* Explicit smaller height */
+            height: 3.5rem;
         }
 
         .nav-item {
@@ -249,13 +354,13 @@
         }
 
         .nav-item svg {
-            width: 1.25rem; /* 20px instead of 24px */
-            height: 1.25rem;
+            width: 1.1rem;
+            height: 1.1rem;
             margin-bottom: 2px;
         }
 
         .nav-item span {
-            font-size: 0.65rem; /* 10px approx */
+            font-size: 0.6rem;
             font-weight: 500;
         }
 
@@ -263,7 +368,18 @@
             color: var(--primary);
         }
 
-        /* Silent Mode Switch UI */
+        /* Input and Modals */
+        .input-field {
+            width: 100%;
+            background-color: var(--bg-slate);
+            border: 1px solid #e5e7eb;
+            border-radius: 0.6rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+            outline: none;
+            margin-bottom: 0.5rem;
+        }
+
         .switch-container {
             display: flex;
             align-items: center;
@@ -283,7 +399,7 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 40px;
+            width: 38px;
             height: 20px;
         }
 
@@ -295,7 +411,7 @@
             inset: 0;
             background-color: #ccc;
             transition: .4s;
-            border-radius: 34px;
+            border-radius: 20px;
         }
 
         .slider:before {
@@ -311,7 +427,7 @@
         }
 
         input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(18px); }
 
         .modal-overlay {
             position: fixed;
@@ -331,17 +447,6 @@
             width: 100%;
             max-width: 300px;
         }
-
-        .input-field {
-            width: 100%;
-            background-color: var(--bg-slate);
-            border: 1px solid #e5e7eb;
-            border-radius: 0.6rem;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.9rem;
-            outline: none;
-            margin-bottom: 0.5rem;
-        }
     </style>
 </head>
 <body>
@@ -351,11 +456,11 @@
     </header>
 
     <main>
-        <!-- Timer -->
+        <!-- Timer Tab -->
         <section id="timer" class="tab-content active">
             <div class="card">
                 <div class="timer-container">
-                    <svg viewBox="0 0 256 256">
+                    <svg class="timer-ring" viewBox="0 0 256 256">
                         <circle class="circle-bg" r="110" cx="128" cy="128" />
                         <circle id="timer-progress" class="progress-ring__circle" r="110" cx="128" cy="128" />
                     </svg>
@@ -368,7 +473,6 @@
                     <button id="timer-toggle" class="btn btn-primary">スタート</button>
                     <button id="timer-reset" class="btn btn-gray">リセット</button>
                 </div>
-                
                 <div style="text-align: left; border-top: 1px solid #eee; padding-top: 1rem;">
                     <div class="switch-container">
                         <span class="switch-label">マナーモード (消音)</span>
@@ -387,26 +491,26 @@
                             <input type="number" id="break-input" class="input-field">
                         </div>
                     </div>
-                    <button onclick="applyTimerSettings()" style="width: 100%; background: #333; color: white; border: none; padding: 0.6rem; border-radius: 0.6rem; cursor: pointer; font-size: 0.85rem; font-weight: 600;">保存してリセット</button>
+                    <button onclick="applyTimerSettings()" style="width: 100%; background: #333; color: white; border: none; padding: 0.65rem; border-radius: 0.65rem; cursor: pointer; font-size: 0.85rem; font-weight: 600;">保存してリセット</button>
                 </div>
             </div>
         </section>
 
-        <!-- Flashcards -->
+        <!-- Flashcards Tab -->
         <section id="flashcards" class="tab-content">
             <div class="group-selector-area" id="group-tabs"></div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                 <h2 style="font-size: 0.9rem; font-weight: 700;">カード管理</h2>
-                <div style="display: flex; gap: 0.4rem;">
+                <div style="display: flex; gap: 0.5rem;">
                     <button onclick="toggleGroupModal()" style="font-size: 0.7rem; background: #eee; border: none; padding: 0.3rem 0.6rem; border-radius: 0.5rem;">+ グループ</button>
-                    <button onclick="toggleCardModal()" style="background: var(--primary); color: white; border: none; width: 1.75rem; height: 1.75rem; border-radius: 50%; font-size: 1.2rem;">+</button>
+                    <button onclick="toggleCardModal()" style="background: var(--primary); color: white; border: none; width: 1.8rem; height: 1.8rem; border-radius: 50%; font-size: 1.2rem;">+</button>
                 </div>
             </div>
             <div id="card-display" class="flashcard-display">
                 <div id="card-inner" class="flashcard-inner">
                     <p id="card-text" class="flashcard-text">カードなし</p>
-                    <button id="delete-card-btn" onclick="deleteCurrentCard(event)" style="position:absolute; top:0.75rem; right:0.75rem; background:none; border:none; color:var(--danger);">
-                        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+                    <button id="delete-card-btn" onclick="deleteCurrentCard(event)" class="btn-delete-card">
+                        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
                     </button>
                 </div>
             </div>
@@ -417,18 +521,47 @@
             </div>
         </section>
 
-        <!-- Todo -->
+        <!-- Todo Tab -->
         <section id="todo" class="tab-content">
             <div class="card" style="text-align: left;">
                 <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem;">学習タスク</h2>
-                <div style="display: flex; gap: 0.4rem; margin-bottom: 1rem;">
-                    <input type="text" id="todo-input" class="input-field" style="margin-bottom:0;" placeholder="新しいタスク...">
-                    <button id="add-todo" style="background: var(--primary); color: white; border: none; padding: 0.5rem 0.8rem; border-radius: 0.6rem; font-size: 0.8rem;">追加</button>
+                <div style="background: var(--bg-gray); padding: 0.75rem; border-radius: 0.75rem; margin-bottom: 1rem;">
+                    <input type="text" id="todo-input" class="input-field" style="margin-bottom:0.5rem;" placeholder="何をする？">
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="date" id="todo-date-input" class="input-field" style="margin-bottom:0; flex:1;">
+                        <button id="add-todo" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.6rem; font-size: 0.8rem; font-weight: 600;">追加</button>
+                    </div>
                 </div>
-                <div class="todo-section-title" style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.4rem;">● 進行中</div>
-                <div id="ongoing-list"></div>
-                <div class="todo-section-title" style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; margin: 1rem 0 0.4rem;">✓ 完了済み</div>
-                <div id="completed-list"></div>
+                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.4rem;">● 進行中</div>
+                <div class="ongoing-tasks-container" id="ongoing-list"></div>
+                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; margin: 1.5rem 0 0.4rem;">✓ 完了済み</div>
+                <div class="completed-tasks-container" id="completed-list"></div>
+            </div>
+        </section>
+
+        <!-- Statistics Tab -->
+        <section id="stats" class="tab-content">
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div id="stat-today" class="stat-value">0h 0m</div>
+                    <div class="stat-label">今日の学習</div>
+                </div>
+                <div class="stat-card">
+                    <div id="stat-total" class="stat-value">0h 0m</div>
+                    <div class="stat-label">全期間合計</div>
+                </div>
+            </div>
+            <div class="card" style="text-align: left;">
+                <h2 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">直近7日間の学習時間</h2>
+                <div id="chart-area" class="chart-container">
+                    <!-- JSで描画 -->
+                </div>
+            </div>
+            <div class="card" style="text-align: left;">
+                <h2 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">最近の履歴</h2>
+                <div id="history-list" style="max-height: 200px; overflow-y: auto;">
+                    <!-- JSで描画 -->
+                </div>
             </div>
         </section>
     </main>
@@ -446,6 +579,10 @@
         <button onclick="switchTab('todo')" id="nav-todo" class="nav-item">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
             <span>タスク</span>
+        </button>
+        <button onclick="switchTab('stats')" id="nav-stats" class="nav-item">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+            <span>統計</span>
         </button>
     </nav>
 
@@ -479,6 +616,7 @@
         let cards = JSON.parse(localStorage.getItem('study_cards')) || [];
         let groups = JSON.parse(localStorage.getItem('study_groups')) || ["すべて"];
         let todos = JSON.parse(localStorage.getItem('study_todos')) || [];
+        let studyHistory = JSON.parse(localStorage.getItem('study_history')) || {}; // { 'YYYY-MM-DD': minutes }
         let timerSettings = JSON.parse(localStorage.getItem('study_timer_settings')) || { focus: 25, break: 5, silent: false };
         
         let activeGroup = "すべて";
@@ -500,13 +638,76 @@
             gainNode.connect(audioCtx.destination);
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.3);
-            setTimeout(() => {
-                const o2 = audioCtx.createOscillator();
-                o2.type = 'sine';
-                o2.frequency.setValueAtTime(880, audioCtx.currentTime);
-                o2.connect(gainNode);
-                o2.start(); o2.stop(audioCtx.currentTime + 0.3);
-            }, 400);
+        }
+
+        // --- UTILS ---
+        function getTodayStr() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function formatMins(totalMins) {
+            const h = Math.floor(totalMins / 60);
+            const m = totalMins % 60;
+            return `${h}h ${m}m`;
+        }
+
+        // --- HISTORY & STATS ---
+        function recordStudySession(mins) {
+            const today = getTodayStr();
+            studyHistory[today] = (studyHistory[today] || 0) + mins;
+            localStorage.setItem('study_history', JSON.stringify(studyHistory));
+            renderStats();
+        }
+
+        function renderStats() {
+            const todayStr = getTodayStr();
+            const todayMins = studyHistory[todayStr] || 0;
+            let totalMins = 0;
+            Object.values(studyHistory).forEach(m => totalMins += m);
+
+            document.getElementById('stat-today').textContent = formatMins(todayMins);
+            document.getElementById('stat-total').textContent = formatMins(totalMins);
+
+            // Chart
+            const chartArea = document.getElementById('chart-area');
+            chartArea.innerHTML = '';
+            const last7Days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                last7Days.push(d.toISOString().split('T')[0]);
+            }
+
+            const maxMins = Math.max(...last7Days.map(d => studyHistory[d] || 0), 60);
+
+            last7Days.forEach(dayStr => {
+                const mins = studyHistory[dayStr] || 0;
+                const heightPercent = (mins / maxMins) * 100;
+                const dateObj = new Date(dayStr);
+                const label = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'chart-bar-wrapper';
+                barWrapper.innerHTML = `
+                    <div class="chart-bar" style="height: ${heightPercent}%" title="${mins}分"></div>
+                    <div class="chart-day">${label}</div>
+                `;
+                chartArea.appendChild(barWrapper);
+            });
+
+            // History List
+            const historyList = document.getElementById('history-list');
+            const sortedDates = Object.keys(studyHistory).sort().reverse();
+            if (sortedDates.length === 0) {
+                historyList.innerHTML = '<p style="font-size:0.75rem; color:var(--text-light); text-align:center;">履歴はありません</p>';
+            } else {
+                historyList.innerHTML = sortedDates.map(date => `
+                    <div style="display:flex; justify-content:space-between; padding: 0.5rem 0; border-bottom:1px solid #f1f5f9; font-size:0.8rem;">
+                        <span style="color:var(--text-muted);">${date}</span>
+                        <span style="font-weight:600;">${formatMins(studyHistory[date])}</span>
+                    </div>
+                `).join('');
+            }
         }
 
         // --- TIMER ---
@@ -570,6 +771,12 @@
                         clearInterval(timerInterval);
                         timerInterval = null;
                         playAlarm();
+                        
+                        // Record Focus Time if session finished
+                        if (isFocusMode) {
+                            recordStudySession(timerSettings.focus);
+                        }
+
                         isFocusMode = !isFocusMode;
                         timerSeconds = (isFocusMode ? timerSettings.focus : timerSettings.break) * 60;
                         this.textContent = 'スタート';
@@ -586,6 +793,7 @@
             document.getElementById(tabId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('nav-' + tabId).classList.add('active');
+            if (tabId === 'stats') renderStats();
         }
 
         // --- FLASHCARDS ---
@@ -655,12 +863,12 @@
             const deleteBtn = document.getElementById('delete-card-btn');
             
             if (filtered.length === 0) {
-                textEl.textContent = activeGroup === "すべて" ? "カードなし" : "このグループは空です";
+                textEl.textContent = activeGroup === "すべて" ? "カードなし" : "空のグループです";
                 counterEl.textContent = "0 / 0";
                 deleteBtn.style.display = 'none';
                 return;
             }
-            deleteBtn.style.display = 'block';
+            deleteBtn.style.display = 'flex';
             const card = filtered[currentCardIndex];
             textEl.textContent = isCardFlipped ? card.a : card.q;
             textEl.style.color = isCardFlipped ? 'var(--secondary)' : 'var(--text-main)';
@@ -696,30 +904,48 @@
             const ongoing = document.getElementById('ongoing-list');
             const completed = document.getElementById('completed-list');
             ongoing.innerHTML = ''; completed.innerHTML = '';
+            
             todos.forEach((t, i) => {
                 const div = document.createElement('div');
                 div.className = 'todo-item';
                 div.innerHTML = `
                     <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${i})" style="width:1rem; height:1rem;">
-                    <span style="flex:1; margin-left:0.5rem; ${t.done ? 'text-decoration:line-through; color:var(--text-light)' : ''}">${t.text}</span>
+                    <div class="todo-info">
+                        <span>${t.text}</span>
+                        ${t.date ? `<span class="todo-date">期限: ${t.date}</span>` : ''}
+                    </div>
                     <button onclick="deleteTodo(${i})" style="background:none; border:none; color:var(--danger); font-size:0.6rem;">削除</button>
                 `;
                 if (t.done) completed.appendChild(div); else ongoing.appendChild(div);
             });
         }
+
         document.getElementById('add-todo').onclick = () => {
             const val = document.getElementById('todo-input').value.trim();
+            const date = document.getElementById('todo-date-input').value;
             if (val) {
-                todos.push({ text: val, done: false });
+                todos.push({ text: val, date: date, done: false });
                 localStorage.setItem('study_todos', JSON.stringify(todos));
-                document.getElementById('todo-input').value = ''; renderTodos();
+                document.getElementById('todo-input').value = '';
+                document.getElementById('todo-date-input').value = '';
+                renderTodos();
             }
         };
-        window.toggleTodo = (i) => { todos[i].done = !todos[i].done; localStorage.setItem('study_todos', JSON.stringify(todos)); renderTodos(); };
-        window.deleteTodo = (i) => { todos.splice(i, 1); localStorage.setItem('study_todos', JSON.stringify(todos)); renderTodos(); };
+
+        window.toggleTodo = (i) => { 
+            todos[i].done = !todos[i].done; 
+            localStorage.setItem('study_todos', JSON.stringify(todos)); 
+            renderTodos(); 
+        };
+        
+        window.deleteTodo = (i) => { 
+            todos.splice(i, 1); 
+            localStorage.setItem('study_todos', JSON.stringify(todos)); 
+            renderTodos(); 
+        };
 
         // --- INIT ---
-        updateTimerDisplay(); renderGroups(); updateCardDisplay(); renderTodos();
+        updateTimerDisplay(); renderGroups(); updateCardDisplay(); renderTodos(); renderStats()b;
     </script>
 </body>
 </html>
