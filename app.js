@@ -1,334 +1,281 @@
- // --- DATA ---
-        let cards = JSON.parse(localStorage.getItem('study_cards')) || [];
-        let groups = JSON.parse(localStorage.getItem('study_groups')) || ["すべて"];
-        let todos = JSON.parse(localStorage.getItem('study_todos')) || [];
-        let studyHistory = JSON.parse(localStorage.getItem('study_history')) || {}; // { 'YYYY-MM-DD': minutes }
-        let timerSettings = JSON.parse(localStorage.getItem('study_timer_settings')) || { focus: 25, break: 5, silent: false };
-        
-        let activeGroup = "すべて";
+ // --- State Management ---
+        let cards = JSON.parse(localStorage.getItem('mp_cards')) || [];
+        let groups = JSON.parse(localStorage.getItem('mp_groups')) || ["デフォルト"];
+        let todos = JSON.parse(localStorage.getItem('mp_todos')) || [];
+        let studyStats = JSON.parse(localStorage.getItem('mp_stats')) || {};
+        let timerSettings = JSON.parse(localStorage.getItem('mp_timer_cfg')) || { focus: 25, break: 5, autoStart: false };
+
+        let currentGroup = "すべて";
         let currentCardIndex = 0;
         let isCardFlipped = false;
-
-        // --- AUDIO ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let isAudioEnabled = false;
-
-        function playAlarm() {
-            if (timerSettings.silent || !isAudioEnabled) return;
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.3);
-        }
-
-        // --- UTILS ---
-        function getTodayStr() {
-            return new Date().toISOString().split('T')[0];
-        }
-
-        function formatMins(totalMins) {
-            const h = Math.floor(totalMins / 60);
-            const m = totalMins % 60;
-            return `${h}h ${m}m`;
-        }
-
-        // --- HISTORY & STATS ---
-        function recordStudySession(mins) {
-            const today = getTodayStr();
-            studyHistory[today] = (studyHistory[today] || 0) + mins;
-            localStorage.setItem('study_history', JSON.stringify(studyHistory));
-            renderStats();
-        }
-
-        function renderStats() {
-            const todayStr = getTodayStr();
-            const todayMins = studyHistory[todayStr] || 0;
-            let totalMins = 0;
-            Object.values(studyHistory).forEach(m => totalMins += m);
-
-            document.getElementById('stat-today').textContent = formatMins(todayMins);
-            document.getElementById('stat-total').textContent = formatMins(totalMins);
-
-            // Chart
-            const chartArea = document.getElementById('chart-area');
-            chartArea.innerHTML = '';
-            const last7Days = [];
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                last7Days.push(d.toISOString().split('T')[0]);
-            }
-
-            const maxMins = Math.max(...last7Days.map(d => studyHistory[d] || 0), 60);
-
-            last7Days.forEach(dayStr => {
-                const mins = studyHistory[dayStr] || 0;
-                const heightPercent = (mins / maxMins) * 100;
-                const dateObj = new Date(dayStr);
-                const label = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
-
-                const barWrapper = document.createElement('div');
-                barWrapper.className = 'chart-bar-wrapper';
-                barWrapper.innerHTML = `
-                    <div class="chart-bar" style="height: ${heightPercent}%" title="${mins}分"></div>
-                    <div class="chart-day">${label}</div>
-                `;
-                chartArea.appendChild(barWrapper);
-            });
-
-            // History List
-            const historyList = document.getElementById('history-list');
-            const sortedDates = Object.keys(studyHistory).sort().reverse();
-            if (sortedDates.length === 0) {
-                historyList.innerHTML = '<p style="font-size:0.75rem; color:var(--text-light); text-align:center;">履歴はありません</p>';
-            } else {
-                historyList.innerHTML = sortedDates.map(date => `
-                    <div style="display:flex; justify-content:space-between; padding: 0.5rem 0; border-bottom:1px solid #f1f5f9; font-size:0.8rem;">
-                        <span style="color:var(--text-muted);">${date}</span>
-                        <span style="font-weight:600;">${formatMins(studyHistory[date])}</span>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // --- TIMER ---
         let isFocusMode = true;
         let timerSeconds = timerSettings.focus * 60;
         let timerInterval = null;
         const CIRCUMFERENCE = 691;
 
-        document.getElementById('focus-input').value = timerSettings.focus;
-        document.getElementById('break-input').value = timerSettings.break;
-        document.getElementById('silent-mode-toggle').checked = timerSettings.silent;
-
-        document.getElementById('silent-mode-toggle').onchange = function() {
-            timerSettings.silent = this.checked;
-            localStorage.setItem('study_timer_settings', JSON.stringify(timerSettings));
+        const getTodayKey = () => {
+            const d = new Date();
+            return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+        };
+        const saveData = () => {
+            localStorage.setItem('mp_cards', JSON.stringify(cards));
+            localStorage.setItem('mp_groups', JSON.stringify(groups));
+            localStorage.setItem('mp_todos', JSON.stringify(todos));
+            localStorage.setItem('mp_stats', JSON.stringify(studyStats));
+            localStorage.setItem('mp_timer_cfg', JSON.stringify(timerSettings));
         };
 
+        // --- Navigation ---
+        window.switchTab = (id, title) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('nav-' + id).classList.add('active');
+            document.getElementById('app-title').textContent = title;
+            if (id === 'stats') renderStats();
+            if (id === 'card') renderGroupChips();
+            if (id === 'todo') renderTodos();
+        };
+
+        // --- Timer Logic ---
         function updateTimerDisplay() {
             const mins = Math.floor(timerSeconds / 60);
             const secs = timerSeconds % 60;
-            document.getElementById('timer-display').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            document.getElementById('timer-display').textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
             const total = (isFocusMode ? timerSettings.focus : timerSettings.break) * 60;
-            const offset = CIRCUMFERENCE - (timerSeconds / (total || 1)) * CIRCUMFERENCE;
-            document.getElementById('timer-progress').style.strokeDashoffset = isNaN(offset) ? 0 : offset;
-            
-            const status = document.getElementById('timer-status');
-            status.textContent = isFocusMode ? "Focus" : "Break";
-            status.style.color = isFocusMode ? "var(--primary)" : "var(--secondary)";
-            document.getElementById('timer-progress').style.color = isFocusMode ? "var(--primary)" : "var(--secondary)";
+            const offset = CIRCUMFERENCE - (timerSeconds / total) * CIRCUMFERENCE;
+            const progress = document.getElementById('timer-progress');
+            progress.style.strokeDashoffset = isNaN(offset) ? 0 : offset;
+            progress.style.stroke = isFocusMode ? "var(--primary)" : "var(--secondary)";
+            document.getElementById('timer-status').textContent = isFocusMode ? "Focus" : "Break";
         }
 
-        function applyTimerSettings() {
-            timerSettings.focus = parseInt(document.getElementById('focus-input').value) || 25;
-            timerSettings.break = parseInt(document.getElementById('break-input').value) || 5;
-            localStorage.setItem('study_timer_settings', JSON.stringify(timerSettings));
-            resetTimer();
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            isFocusMode = true;
-            timerSeconds = timerSettings.focus * 60;
-            document.getElementById('timer-toggle').textContent = 'スタート';
-            updateTimerDisplay();
-        }
-
-        document.getElementById('timer-toggle').onclick = function() {
-            if (!isAudioEnabled) { audioCtx.resume(); isAudioEnabled = true; }
+        window.toggleTimer = () => {
+            const btn = document.getElementById('timer-toggle');
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
-                this.textContent = '再開';
+                btn.textContent = "スタート";
             } else {
-                this.textContent = '一時停止';
+                btn.textContent = "停止";
                 timerInterval = setInterval(() => {
                     if (timerSeconds > 0) {
                         timerSeconds--;
+                        if (isFocusMode) {
+                            const key = getTodayKey();
+                            studyStats[key] = (studyStats[key] || 0) + 1;
+                        }
                         updateTimerDisplay();
                     } else {
+                        // Timer Finished
                         clearInterval(timerInterval);
                         timerInterval = null;
-                        playAlarm();
-                        
-                        // Record Focus Time if session finished
-                        if (isFocusMode) {
-                            recordStudySession(timerSettings.focus);
-                        }
-
                         isFocusMode = !isFocusMode;
                         timerSeconds = (isFocusMode ? timerSettings.focus : timerSettings.break) * 60;
-                        this.textContent = 'スタート';
                         updateTimerDisplay();
+                        
+                        if (timerSettings.autoStart) {
+                            toggleTimer(); // 自動開始
+                        } else {
+                            btn.textContent = "スタート";
+                        }
                     }
                 }, 1000);
             }
         };
-        document.getElementById('timer-reset').onclick = resetTimer;
 
-        // --- TABS ---
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-' + tabId).classList.add('active');
-            if (tabId === 'stats') renderStats();
-        }
+        window.resetTimer = () => {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            document.getElementById('timer-toggle').textContent = "スタート";
+            isFocusMode = true;
+            timerSeconds = timerSettings.focus * 60;
+            updateTimerDisplay();
+            saveData();
+        };
 
-        // --- FLASHCARDS ---
-        function toggleGroupModal() {
-            const m = document.getElementById('group-modal');
-            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
-        }
-        function toggleCardModal() {
-            const m = document.getElementById('card-modal');
-            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
-        }
+        window.saveTimerSettings = () => {
+            timerSettings.focus = parseInt(document.getElementById('focus-input').value) || 25;
+            timerSettings.break = parseInt(document.getElementById('break-input').value) || 5;
+            timerSettings.autoStart = document.getElementById('auto-start-switch').checked;
+            resetTimer();
+        };
 
-        function addGroup() {
-            const name = document.getElementById('group-name-input').value.trim();
-            if (name && !groups.includes(name)) {
-                groups.push(name);
-                localStorage.setItem('study_groups', JSON.stringify(groups));
-                document.getElementById('group-name-input').value = '';
-                renderGroups(); toggleGroupModal();
-            }
-        }
-
-        function renderGroups() {
-            const container = document.getElementById('group-tabs');
-            container.innerHTML = '';
-            groups.forEach(g => {
-                const pill = document.createElement('div');
-                pill.className = `group-pill ${activeGroup === g ? 'active' : ''}`;
-                pill.textContent = g;
-                pill.onclick = () => {
-                    activeGroup = g;
-                    currentCardIndex = 0; isCardFlipped = false;
-                    renderGroups(); updateCardDisplay();
-                };
-                container.appendChild(pill);
-            });
-            const select = document.getElementById('card-group-select');
-            select.innerHTML = '';
-            groups.filter(g => g !== "すべて").forEach(g => {
-                const opt = document.createElement('option');
-                opt.value = g; opt.textContent = g;
-                select.appendChild(opt);
-            });
-        }
-
-        function addCard() {
-            const group = document.getElementById('card-group-select').value;
-            const q = document.getElementById('card-q').value.trim();
-            const a = document.getElementById('card-a').value.trim();
-            if (q && a && group) {
-                cards.push({ q, a, group });
-                localStorage.setItem('study_cards', JSON.stringify(cards));
-                document.getElementById('card-q').value = '';
-                document.getElementById('card-a').value = '';
-                toggleCardModal(); updateCardDisplay();
-            }
-        }
-
+        // --- Flashcard Logic ---
         function getFilteredCards() {
-            return activeGroup === "すべて" ? cards : cards.filter(c => c.group === activeGroup);
+            return currentGroup === "すべて" ? cards : cards.filter(c => c.group === currentGroup);
+        }
+
+        function renderGroupChips() {
+            const container = document.getElementById('group-container');
+            container.innerHTML = '';
+            ["すべて", ...groups].forEach(g => {
+                const chip = document.createElement('div');
+                chip.className = `chip ${currentGroup === g ? 'active' : ''}`;
+                chip.textContent = g;
+                chip.onclick = () => {
+                    currentGroup = g; currentCardIndex = 0; isCardFlipped = false;
+                    renderGroupChips(); updateCardDisplay();
+                };
+                container.appendChild(chip);
+            });
         }
 
         function updateCardDisplay() {
             const filtered = getFilteredCards();
-            const textEl = document.getElementById('card-text');
-            const counterEl = document.getElementById('card-counter');
-            const deleteBtn = document.getElementById('delete-card-btn');
-            
+            const front = document.getElementById('card-front');
+            const back = document.getElementById('card-back');
+            const counter = document.getElementById('card-counter');
+            const inner = document.getElementById('card-inner');
+            inner.classList.remove('flipped');
+            isCardFlipped = false;
+
             if (filtered.length === 0) {
-                textEl.textContent = activeGroup === "すべて" ? "カードなし" : "空のグループです";
-                counterEl.textContent = "0 / 0";
-                deleteBtn.style.display = 'none';
-                return;
+                front.textContent = "カードがありません";
+                back.textContent = "追加してください";
+                counter.textContent = "0 / 0";
+            } else {
+                const card = filtered[currentCardIndex];
+                front.textContent = card.q;
+                back.textContent = card.a;
+                counter.textContent = `${currentCardIndex + 1} / ${filtered.length}`;
             }
-            deleteBtn.style.display = 'flex';
-            const card = filtered[currentCardIndex];
-            textEl.textContent = isCardFlipped ? card.a : card.q;
-            textEl.style.color = isCardFlipped ? 'var(--secondary)' : 'var(--text-main)';
-            counterEl.textContent = `${currentCardIndex + 1} / ${filtered.length}`;
         }
 
-        document.getElementById('card-display').onclick = () => {
-            if (getFilteredCards().length > 0) { isCardFlipped = !isCardFlipped; updateCardDisplay(); }
+        window.flipCard = () => {
+            if (getFilteredCards().length === 0) return;
+            isCardFlipped = !isCardFlipped;
+            document.getElementById('card-inner').classList.toggle('flipped', isCardFlipped);
         };
 
-        function nextCard() {
+        window.nextCard = () => {
             const len = getFilteredCards().length;
-            if (len > 0) { currentCardIndex = (currentCardIndex + 1) % len; isCardFlipped = false; updateCardDisplay(); }
-        }
-        function prevCard() {
-            const len = getFilteredCards().length;
-            if (len > 0) { currentCardIndex = (currentCardIndex - 1 + len) % len; isCardFlipped = false; updateCardDisplay(); }
-        }
-        function deleteCurrentCard(e) {
-            e.stopPropagation();
-            if (confirm('削除しますか？')) {
-                const filtered = getFilteredCards();
-                const cardToDelete = filtered[currentCardIndex];
-                cards = cards.filter(c => c !== cardToDelete);
-                localStorage.setItem('study_cards', JSON.stringify(cards));
-                if (currentCardIndex >= getFilteredCards().length && currentCardIndex > 0) currentCardIndex--;
-                isCardFlipped = false; updateCardDisplay();
-            }
-        }
+            if (len > 0) { currentCardIndex = (currentCardIndex + 1) % len; updateCardDisplay(); }
+        };
 
-        // --- TODO ---
+        window.prevCard = () => {
+            const len = getFilteredCards().length;
+            if (len > 0) { currentCardIndex = (currentCardIndex - 1 + len) % len; updateCardDisplay(); }
+        };
+
+        window.deleteCurrentCard = (e) => {
+            e.stopPropagation();
+            const filtered = getFilteredCards();
+            if (filtered.length === 0) return;
+            if (confirm("このカードを削除しますか？")) {
+                const target = filtered[currentCardIndex];
+                cards = cards.filter(c => c !== target);
+                saveData();
+                const newLen = getFilteredCards().length;
+                if (currentCardIndex >= newLen) currentCardIndex = Math.max(0, newLen - 1);
+                updateCardDisplay();
+            }
+        };
+
+        window.addCard = () => {
+            const q = document.getElementById('card-q').value.trim();
+            const a = document.getElementById('card-a').value.trim();
+            if (q && a) {
+                const group = currentGroup === "すべて" ? groups[0] : currentGroup;
+                cards.push({ q, a, group });
+                saveData(); closeModal('card-modal'); updateCardDisplay();
+                document.getElementById('card-q').value = ''; document.getElementById('card-a').value = '';
+            }
+        };
+
+        window.addGroup = () => {
+            const name = document.getElementById('group-name').value.trim();
+            if (name && !groups.includes(name)) {
+                groups.push(name); saveData(); closeModal('group-modal');
+                renderGroupChips(); document.getElementById('group-name').value = '';
+            }
+        };
+
+        // --- Todo Logic ---
+        window.addTodo = () => {
+            const text = document.getElementById('todo-input').value.trim();
+            const period = document.getElementById('todo-period-input').value.trim();
+            if (text) {
+                todos.push({ text, period, done: false, id: Date.now() });
+                saveData(); renderTodos();
+                document.getElementById('todo-input').value = '';
+                document.getElementById('todo-period-input').value = '';
+            }
+        };
+
+        window.toggleTodo = (id) => {
+            const todo = todos.find(t => t.id === id);
+            if (todo) todo.done = !todo.done;
+            saveData(); renderTodos();
+        };
+
+        window.deleteTodo = (id) => {
+            todos = todos.filter(t => t.id !== id);
+            saveData(); renderTodos();
+        };
+
         function renderTodos() {
-            const ongoing = document.getElementById('ongoing-list');
-            const completed = document.getElementById('completed-list');
-            ongoing.innerHTML = ''; completed.innerHTML = '';
-            
-            todos.forEach((t, i) => {
+            const listPending = document.getElementById('todo-list-pending');
+            const listDone = document.getElementById('todo-list-done');
+            listPending.innerHTML = '';
+            listDone.innerHTML = '';
+
+            const pendingItems = todos.filter(t => !t.done);
+            const doneItems = todos.filter(t => t.done);
+
+            document.getElementById('pending-count').textContent = pendingItems.length;
+            document.getElementById('done-count').textContent = doneItems.length;
+
+            const createEl = (t) => {
                 const div = document.createElement('div');
                 div.className = 'todo-item';
                 div.innerHTML = `
-                    <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${i})" style="width:1rem; height:1rem;">
-                    <div class="todo-info">
-                        <span>${t.text}</span>
-                        ${t.date ? `<span class="todo-date">期限: ${t.date}</span>` : ''}
-                    </div>
-                    <button onclick="deleteTodo(${i})" style="background:none; border:none; color:var(--danger); font-size:0.6rem;">削除</button>
+                    <input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo(${t.id})" style="width:1.2rem; height:1.2rem; cursor:pointer;">
+                    <span class="todo-text ${t.done?'done':''}">${t.text}</span>
+                    ${t.period ? `<span class="todo-period">${t.period}</span>` : ''}
+                    <button class="btn btn-danger" onclick="deleteTodo(${t.id})" style="padding:0.4rem; margin-left:0.5rem;">削除</button>
                 `;
-                if (t.done) completed.appendChild(div); else ongoing.appendChild(div);
+                return div;
+            };
+
+            pendingItems.forEach(t => listPending.appendChild(createEl(t)));
+            doneItems.forEach(t => listDone.appendChild(createEl(t)));
+        }
+
+        // --- Stats ---
+        function renderStats() {
+            const todayKey = getTodayKey();
+            const todaySec = studyStats[todayKey] || 0;
+            const totalSec = Object.values(studyStats).reduce((a,b) => a+b, 0);
+            document.getElementById('stat-today').textContent = `${Math.floor(todaySec/60)}m`;
+            document.getElementById('stat-total').textContent = `${(totalSec/3600).toFixed(1)}h`;
+
+            const chart = document.getElementById('stats-chart');
+            chart.innerHTML = '';
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                const key = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+                days.push({ label: i === 0 ? '今日' : `${d.getMonth()+1}/${d.getDate()}`, val: Math.floor((studyStats[key] || 0) / 60) });
+            }
+            const max = Math.max(...days.map(d => d.val), 60);
+            days.forEach(d => {
+                const h = (d.val / max) * 100;
+                const col = document.createElement('div'); col.className = 'chart-bar-wrapper';
+                col.innerHTML = `<div class="chart-bar" style="height:${h}%"></div><div class="chart-label">${d.label}</div>`;
+                chart.appendChild(col);
             });
         }
 
-        document.getElementById('add-todo').onclick = () => {
-            const val = document.getElementById('todo-input').value.trim();
-            const date = document.getElementById('todo-date-input').value;
-            if (val) {
-                todos.push({ text: val, date: date, done: false });
-                localStorage.setItem('study_todos', JSON.stringify(todos));
-                document.getElementById('todo-input').value = '';
-                document.getElementById('todo-date-input').value = '';
-                renderTodos();
-            }
-        };
+        window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
 
-        window.toggleTodo = (i) => { 
-            todos[i].done = !todos[i].done; 
-            localStorage.setItem('study_todos', JSON.stringify(todos)); 
-            renderTodos(); 
+        window.onload = () => {
+            document.getElementById('focus-input').value = timerSettings.focus;
+            document.getElementById('break-input').value = timerSettings.break;
+            document.getElementById('auto-start-switch').checked = timerSettings.autoStart;
+            updateTimerDisplay();
+            renderGroupChips();
+            updateCardDisplay();
+            renderTodos();
         };
-        
-        window.deleteTodo = (i) => { 
-            todos.splice(i, 1); 
-            localStorage.setItem('study_todos', JSON.stringify(todos)); 
-            renderTodos(); 
-        };
-
-        // --- INIT ---
-        updateTimerDisplay(); renderGroups(); updateCardDisplay(); renderTodos(); renderStats()b;
