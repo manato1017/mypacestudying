@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>My Pace Studying Pro</title>
+    <title>My Pace Studying</title>
 </head>
+
 <body>
 
     <header>
@@ -44,7 +46,7 @@
                         <input type="number" id="break-input" class="input-box" value="5">
                     </div>
                 </div>
-                
+
                 <div class="switch-row">
                     <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">自動的に次のタイマーを開始</span>
                     <label class="switch">
@@ -53,7 +55,8 @@
                     </label>
                 </div>
 
-                <button class="btn btn-primary" style="width: 100%; margin-top: 1.25rem;" onclick="saveTimerSettings()">設定を保存</button>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 1.25rem;"
+                    onclick="saveTimerSettings()">設定を保存</button>
             </div>
         </section>
 
@@ -72,14 +75,17 @@
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <button class="btn" onclick="prevCard()" style="background:none; color:var(--primary); font-size:1.5rem;">←</button>
+                <button class="btn" onclick="prevCard()"
+                    style="background:none; color:var(--primary); font-size:1.5rem;">←</button>
                 <span id="card-counter" style="font-weight: 700; color: var(--text-muted);">0 / 0</span>
-                <button class="btn" onclick="nextCard()" style="background:none; color:var(--primary); font-size:1.5rem;">→</button>
+                <button class="btn" onclick="nextCard()"
+                    style="background:none; color:var(--primary); font-size:1.5rem;">→</button>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <button class="btn btn-primary" onclick="openModal('card-modal')">カード追加</button>
-                <button class="btn" style="background:var(--bg-gray);" onclick="openModal('group-modal')">グループ作成</button>
+                <button class="btn" style="background:var(--bg-gray);"
+                    onclick="openModal('group-modal')">グループ作成</button>
             </div>
         </section>
 
@@ -91,11 +97,17 @@
                 <input type="text" id="todo-period-input" class="input-box" placeholder="期間 (例: 15:00-16:00)">
                 <button class="btn btn-primary" style="width: 100%;" onclick="addTodo()">タスクを追加</button>
             </div>
-            
-            <div class="todo-section-title">実行中 <span id="pending-count">0</span></div>
+
+            <div class="todo-section-title">
+                <div class="todo-section">実行中 <span id="pending-count">0</span>
+                </div>
+            </div>
             <div id="todo-list-pending"></div>
-            
-            <div class="todo-section-title">完了済み <span id="done-count">0</span></div>
+
+            <div class="todo-section-title">
+                <div class="todo-section">完了済み <span id="done-count">0</span>
+                </div>
+            </div>
             <div id="todo-list-done" style="opacity: 0.8;"></div>
         </section>
 
@@ -121,19 +133,31 @@
     <!-- Navigation -->
     <nav>
         <button onclick="switchTab('timer', '集中タイマー')" id="nav-timer" class="nav-item active">
-            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span>タイマー</span>
         </button>
         <button onclick="switchTab('card', '単語カード')" id="nav-card" class="nav-item">
-            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
             <span>カード</span>
         </button>
         <button onclick="switchTab('todo', 'TODOリスト')" id="nav-todo" class="nav-item">
-            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
             <span>タスク</span>
         </button>
         <button onclick="switchTab('stats', '学習統計')" id="nav-stats" class="nav-item">
-            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
             <span>統計</span>
         </button>
     </nav>
@@ -145,7 +169,8 @@
             <textarea id="card-q" class="input-box" rows="2" placeholder="おもて面"></textarea>
             <textarea id="card-a" class="input-box" rows="2" placeholder="うら面"></textarea>
             <div style="display: flex; gap: 0.5rem;">
-                <button class="btn" style="flex:1; background:var(--bg-gray);" onclick="closeModal('card-modal')">閉じる</button>
+                <button class="btn" style="flex:1; background:var(--bg-gray);"
+                    onclick="closeModal('card-modal')">閉じる</button>
                 <button class="btn btn-primary" style="flex:1;" onclick="addCard()">追加</button>
             </div>
         </div>
@@ -156,7 +181,8 @@
             <h3 style="margin-bottom: 1rem;">グループ作成</h3>
             <input type="text" id="group-name" class="input-box" placeholder="グループ名 (例: 歴史)">
             <div style="display: flex; gap: 0.5rem;">
-                <button class="btn" style="flex:1; background:var(--bg-gray);" onclick="closeModal('group-modal')">閉じる</button>
+                <button class="btn" style="flex:1; background:var(--bg-gray);"
+                    onclick="closeModal('group-modal')">閉じる</button>
                 <button class="btn btn-primary" style="flex:1;" onclick="addGroup()">作成</button>
             </div>
         </div>
@@ -165,4 +191,5 @@
     <script src="app.js">
     </script>
 </body>
+
 </html>
