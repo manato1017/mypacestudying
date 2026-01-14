@@ -3,170 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Pace Studying</title>
-    <link rel="stylesheet" href="https://manato1017.github.io/mypacestudying/style.css">
+    <link rel="stylesheet" href="style.css">
+    <title>My Pace Studying Pro</title>
 </head>
 <body>
 
-    <!-- Header -->
     <header>
         <h1 id="app-title">集中タイマー</h1>
     </header>
 
-    <!-- Main Content Area -->
     <main>
-        
         <!-- Timer Section -->
         <section id="timer" class="tab-content active">
             <div class="card">
                 <div class="timer-container">
-                    <svg viewBox="0 0 256 256">
+                    <svg class="timer-svg" viewBox="0 0 256 256">
                         <circle class="circle-bg" r="110" cx="128" cy="128" />
                         <circle id="timer-progress" class="progress-ring__circle" r="110" cx="128" cy="128" />
                     </svg>
                     <div class="timer-info">
                         <div class="timer-display" id="timer-display">25:00</div>
-                        <div id="timer-status" class="timer-status text-indigo">Focus</div>
+                        <div id="timer-status" class="timer-status">Focus</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button id="timer-toggle" class="btn btn-primary" onclick="toggleTimer()">スタート</button>
+                    <button class="btn" style="background:var(--bg-gray);" onclick="resetTimer()">リセット</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem;">タイマー設定</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="font-size: 0.7rem; color: var(--text-muted);">集中 (分)</label>
+                        <input type="number" id="focus-input" class="input-box" value="25">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.7rem; color: var(--text-muted);">休憩 (分)</label>
+                        <input type="number" id="break-input" class="input-box" value="5">
                     </div>
                 </div>
                 
-                <div class="timer-controls">
-                    <button id="timer-toggle" class="btn btn-primary">スタート</button>
-                    <button id="timer-reset" class="btn btn-gray">リセット</button>
+                <div class="switch-row">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">自動的に次のタイマーを開始</span>
+                    <label class="switch">
+                        <input type="checkbox" id="auto-start-switch">
+                        <span class="slider"></span>
+                    </label>
                 </div>
 
-                <div class="settings-area">
-                    <h3 class="settings-title">タイマー設定 (分)</h3>
-                    <div class="grid-2">
-                        <div class="input-group">
-                            <label>集中時間</label>
-                            <input type="number" id="focus-input" min="1" max="120" class="input-field">
-                        </div>
-                        <div class="input-group">
-                            <label>休憩時間</label>
-                            <input type="number" id="break-input" min="1" max="60" class="input-field">
-                        </div>
-                    </div>
-                    <button onclick="applyTimerSettings()" class="btn-save">設定を保存して適用</button>
-                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 1.25rem;" onclick="saveTimerSettings()">設定を保存</button>
             </div>
         </section>
 
-        <!-- Flashcards Section -->
-        <section id="flashcards" class="tab-content">
-            <div class="flashcard-header">
-                <h2 style="font-size: 1.125rem; font-weight: 700; color: #374151;">暗記カード</h2>
-                <button onclick="toggleCardModal()" style="background: var(--primary); color: white; border: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                    <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                </button>
-            </div>
+        <!-- Flashcard Section -->
+        <section id="card" class="tab-content">
+            <div id="group-container" class="group-chips"></div>
 
-            <div id="card-display" class="flashcard-display">
+            <div class="flashcard-outer" onclick="flipCard()">
+                <div class="delete-btn-overlay">
+                    <button class="btn btn-danger" onclick="deleteCurrentCard(event)">削除</button>
+                </div>
                 <div id="card-inner" class="flashcard-inner">
-                    <p id="card-text" class="flashcard-text">カードがありません</p>
-                    <button id="delete-card-btn" onclick="deleteCurrentCard(event)" class="btn-delete-card">
-                        <svg style="width: 1.25rem; height: 1.25rem;" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
+                    <div class="flashcard-front" id="card-front">読み込み中...</div>
+                    <div class="flashcard-back" id="card-back">...</div>
                 </div>
             </div>
 
-            <div class="flashcard-nav">
-                <button onclick="prevCard()" class="btn-nav-text">← 前へ</button>
-                <span id="card-counter" class="counter-text">0 / 0</span>
-                <button onclick="nextCard()" class="btn-nav-text">次へ →</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <button class="btn" onclick="prevCard()" style="background:none; color:var(--primary); font-size:1.5rem;">←</button>
+                <span id="card-counter" style="font-weight: 700; color: var(--text-muted);">0 / 0</span>
+                <button class="btn" onclick="nextCard()" style="background:none; color:var(--primary); font-size:1.5rem;">→</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <button class="btn btn-primary" onclick="openModal('card-modal')">カード追加</button>
+                <button class="btn" style="background:var(--bg-gray);" onclick="openModal('group-modal')">グループ作成</button>
             </div>
         </section>
 
         <!-- Todo Section -->
         <section id="todo" class="tab-content">
-            <div class="card" style="text-align: left;">
-                <h2 style="font-size: 1.125rem; font-weight: 700; color: #374151; margin-bottom: 1rem;">今日の学習タスク</h2>
-                <div class="todo-input-area">
-                    <input type="text" id="todo-input" class="todo-input-field" placeholder="タスクを入力...">
-                    <button id="add-todo" class="btn-todo-add">追加</button>
-                </div>
-                <ul id="todo-list" class="todo-list">
-                    <!-- Tasks load here -->
-                </ul>
+            <div class="card" style="padding: 1.25rem;">
+                <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem;">新規タスク</p>
+                <input type="text" id="todo-input" class="input-box" placeholder="タスクの内容...">
+                <input type="text" id="todo-period-input" class="input-box" placeholder="期間 (例: 15:00-16:00)">
+                <button class="btn btn-primary" style="width: 100%;" onclick="addTodo()">タスクを追加</button>
             </div>
+            
+            <div class="todo-section-title">実行中 <span id="pending-count">0</span></div>
+            <div id="todo-list-pending"></div>
+            
+            <div class="todo-section-title">完了済み <span id="done-count">0</span></div>
+            <div id="todo-list-done" style="opacity: 0.8;"></div>
         </section>
 
         <!-- Stats Section -->
         <section id="stats" class="tab-content">
-            <div class="card">
-                <h2 style="font-size: 1.125rem; font-weight: 700; color: #374151; margin-bottom: 1.5rem;">学習データ</h2>
-                
-                <div class="stats-summary">
-                    <div class="stat-box">
-                        <div class="stat-label">今日の集中時間</div>
-                        <div class="stat-value"><span id="stat-today-focus">0</span><span class="stat-unit">分</span></div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">累計完了タスク</div>
-                        <div class="stat-value"><span id="stat-total-tasks">0</span><span class="stat-unit">個</span></div>
-                    </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-val" id="stat-today">0m</div>
+                    <div class="stat-label">今日の学習</div>
                 </div>
-
-                <div class="chart-section">
-                    <h3 class="settings-title">過去7日間の集中時間 (分)</h3>
-                    <div class="chart-container" id="weekly-chart">
-                        <!-- Bars generated by JS -->
-                    </div>
-                    <div class="chart-labels" id="weekly-labels">
-                        <!-- Labels generated by JS -->
-                    </div>
+                <div class="stat-item">
+                    <div class="stat-val" id="stat-total">0h</div>
+                    <div class="stat-label">累計学習</div>
                 </div>
             </div>
+            <div class="card">
+                <p style="font-weight: 700; font-size: 0.9rem;">週間学習レポート</p>
+                <div id="stats-chart" class="chart-container"></div>
+            </div>
         </section>
-
     </main>
 
-    <!-- Navigation Bar -->
-    <nav class="bottom-nav">
+    <!-- Navigation -->
+    <nav>
         <button onclick="switchTab('timer', '集中タイマー')" id="nav-timer" class="nav-item active">
-            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             <span>タイマー</span>
         </button>
-        <button onclick="switchTab('flashcards', '暗記カード')" id="nav-flashcards" class="nav-item">
-            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
+        <button onclick="switchTab('card', '単語カード')" id="nav-card" class="nav-item">
+            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
             <span>カード</span>
         </button>
         <button onclick="switchTab('todo', 'TODOリスト')" id="nav-todo" class="nav-item">
-            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
+            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
             <span>タスク</span>
         </button>
         <button onclick="switchTab('stats', '学習統計')" id="nav-stats" class="nav-item">
-            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+            <svg style="width: 1.4rem; height: 1.4rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
             <span>統計</span>
         </button>
     </nav>
 
-    <!-- Add Card Modal -->
+    <!-- Modals -->
     <div id="card-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3>新しいカードを追加</h3>
-            <textarea id="card-q" class="modal-textarea" rows="2" placeholder="問題を入力..."></textarea>
-            <textarea id="card-a" class="modal-textarea" rows="2" placeholder="答えを入力..."></textarea>
-            <div class="modal-actions">
-                <button onclick="toggleCardModal()" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">キャンセル</button>
-                <button onclick="addCard()" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer;">保存</button>
+            <h3 style="margin-bottom: 1rem;">カード追加</h3>
+            <textarea id="card-q" class="input-box" rows="2" placeholder="おもて面"></textarea>
+            <textarea id="card-a" class="input-box" rows="2" placeholder="うら面"></textarea>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn" style="flex:1; background:var(--bg-gray);" onclick="closeModal('card-modal')">閉じる</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="addCard()">追加</button>
             </div>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <div id="group-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 1rem;">グループ作成</h3>
+            <input type="text" id="group-name" class="input-box" placeholder="グループ名 (例: 歴史)">
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn" style="flex:1; background:var(--bg-gray);" onclick="closeModal('group-modal')">閉じる</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="addGroup()">作成</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js">
+    </script>
 </body>
 </html>
-
