@@ -242,11 +242,20 @@
             font-size: 0.85rem;
             font-weight: 700;
             color: var(--text-muted);
-            margin: 1.5rem 0 0.75rem 0.5rem;
-            display: flex;
-            align-items: center;
+            margin: 1.5rem 0 0 0;
             gap: 0.5rem;
+            background-color: var(--white);
+            box-shadow:var(--shadow);
+            padding: 10px;
+            border-radius: 20px;
+            min-height: 120px;
         }
+
+        .todo-section{
+          margin-top: 15px;
+          margin-left: 10px;
+        }
+
         .todo-section-title span {
             background: #e5e7eb;
             color: var(--text-main);
@@ -343,5 +352,7 @@
             display: none; align-items: center; justify-content: center; padding: 1.5rem; z-index: 200;
         }
         .modal-content { background: var(--white); padding: 1.5rem; border-radius: 1.25rem; width: 100%; max-width: 350px; }
+    
 
     
+
