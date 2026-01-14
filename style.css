@@ -57,7 +57,7 @@
         .tab-content {
             display: none;
             max-width: 500px;
-            width: 400px;
+            width: 100%;
         }
 
         .tab-content.active {
@@ -343,4 +343,5 @@
             display: none; align-items: center; justify-content: center; padding: 1.5rem; z-index: 200;
         }
         .modal-content { background: var(--white); padding: 1.5rem; border-radius: 1.25rem; width: 100%; max-width: 350px; }
+
     
