@@ -2,509 +2,171 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyPace Study</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Pace Studying</title>
     <link rel="stylesheet" href="https://manato1017.github.io/mypacestudying/style.css">
 </head>
 <body>
 
+    <!-- Header -->
     <header>
-        <h1>MyPace Study</h1>
+        <h1 id="app-title">集中タイマー</h1>
     </header>
 
+    <!-- Main Content Area -->
     <main>
-        <!-- Timer Tab -->
+        
+        <!-- Timer Section -->
         <section id="timer" class="tab-content active">
             <div class="card">
                 <div class="timer-container">
-                    <svg class="timer-ring" viewBox="0 0 256 256">
+                    <svg viewBox="0 0 256 256">
                         <circle class="circle-bg" r="110" cx="128" cy="128" />
                         <circle id="timer-progress" class="progress-ring__circle" r="110" cx="128" cy="128" />
                     </svg>
                     <div class="timer-info">
                         <div class="timer-display" id="timer-display">25:00</div>
-                        <div id="timer-status" class="timer-status">Focus</div>
+                        <div id="timer-status" class="timer-status text-indigo">Focus</div>
                     </div>
                 </div>
+                
                 <div class="timer-controls">
                     <button id="timer-toggle" class="btn btn-primary">スタート</button>
                     <button id="timer-reset" class="btn btn-gray">リセット</button>
                 </div>
-                <div style="text-align: left; border-top: 1px solid #eee; padding-top: 1rem;">
-                    <div class="switch-container">
-                        <span class="switch-label">マナーモード (消音)</span>
-                        <label class="switch">
-                            <input type="checkbox" id="silent-mode-toggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem;">
-                        <div>
-                            <p style="font-size: 0.7rem; color: #666;">集中 (分)</p>
-                            <input type="number" id="focus-input" class="input-field">
+
+                <div class="settings-area">
+                    <h3 class="settings-title">タイマー設定 (分)</h3>
+                    <div class="grid-2">
+                        <div class="input-group">
+                            <label>集中時間</label>
+                            <input type="number" id="focus-input" min="1" max="120" class="input-field">
                         </div>
-                        <div>
-                            <p style="font-size: 0.7rem; color: #666;">休憩 (分)</p>
-                            <input type="number" id="break-input" class="input-field">
+                        <div class="input-group">
+                            <label>休憩時間</label>
+                            <input type="number" id="break-input" min="1" max="60" class="input-field">
                         </div>
                     </div>
-                    <button onclick="applyTimerSettings()" style="width: 100%; background: #333; color: white; border: none; padding: 0.65rem; border-radius: 0.65rem; cursor: pointer; font-size: 0.85rem; font-weight: 600;">保存してリセット</button>
+                    <button onclick="applyTimerSettings()" class="btn-save">設定を保存して適用</button>
                 </div>
             </div>
         </section>
 
-        <!-- Flashcards Tab -->
+        <!-- Flashcards Section -->
         <section id="flashcards" class="tab-content">
-            <div class="group-selector-area" id="group-tabs"></div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <h2 style="font-size: 0.9rem; font-weight: 700;">カード管理</h2>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button onclick="toggleGroupModal()" style="font-size: 0.7rem; background: #eee; border: none; padding: 0.3rem 0.6rem; border-radius: 0.5rem;">+ グループ</button>
-                    <button onclick="toggleCardModal()" style="background: var(--primary); color: white; border: none; width: 1.8rem; height: 1.8rem; border-radius: 50%; font-size: 1.2rem;">+</button>
-                </div>
+            <div class="flashcard-header">
+                <h2 style="font-size: 1.125rem; font-weight: 700; color: #374151;">暗記カード</h2>
+                <button onclick="toggleCardModal()" style="background: var(--primary); color: white; border: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                </button>
             </div>
+
             <div id="card-display" class="flashcard-display">
                 <div id="card-inner" class="flashcard-inner">
-                    <p id="card-text" class="flashcard-text">カードなし</p>
+                    <p id="card-text" class="flashcard-text">カードがありません</p>
                     <button id="delete-card-btn" onclick="deleteCurrentCard(event)" class="btn-delete-card">
-                        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+                        <svg style="width: 1.25rem; height: 1.25rem;" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
                     </button>
                 </div>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem;">
-                <button onclick="prevCard()" style="background:none; border:none; color:var(--primary); font-size: 1.5rem; font-weight:700;">←</button>
-                <span id="card-counter" style="font-size: 0.8rem; font-weight:600;">0 / 0</span>
-                <button onclick="nextCard()" style="background:none; border:none; color:var(--primary); font-size: 1.5rem; font-weight:700;">→</button>
+
+            <div class="flashcard-nav">
+                <button onclick="prevCard()" class="btn-nav-text">← 前へ</button>
+                <span id="card-counter" class="counter-text">0 / 0</span>
+                <button onclick="nextCard()" class="btn-nav-text">次へ →</button>
             </div>
         </section>
 
-        <!-- Todo Tab -->
+        <!-- Todo Section -->
         <section id="todo" class="tab-content">
             <div class="card" style="text-align: left;">
-                <h2 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem;">学習タスク</h2>
-                <div style="background: var(--bg-gray); padding: 0.75rem; border-radius: 0.75rem; margin-bottom: 1rem;">
-                    <input type="text" id="todo-input" class="input-field" style="margin-bottom:0.5rem;" placeholder="何をする？">
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <input type="date" id="todo-date-input" class="input-field" style="margin-bottom:0; flex:1;">
-                        <button id="add-todo" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.6rem; font-size: 0.8rem; font-weight: 600;">追加</button>
+                <h2 style="font-size: 1.125rem; font-weight: 700; color: #374151; margin-bottom: 1rem;">今日の学習タスク</h2>
+                <div class="todo-input-area">
+                    <input type="text" id="todo-input" class="todo-input-field" placeholder="タスクを入力...">
+                    <button id="add-todo" class="btn-todo-add">追加</button>
+                </div>
+                <ul id="todo-list" class="todo-list">
+                    <!-- Tasks load here -->
+                </ul>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section id="stats" class="tab-content">
+            <div class="card">
+                <h2 style="font-size: 1.125rem; font-weight: 700; color: #374151; margin-bottom: 1.5rem;">学習データ</h2>
+                
+                <div class="stats-summary">
+                    <div class="stat-box">
+                        <div class="stat-label">今日の集中時間</div>
+                        <div class="stat-value"><span id="stat-today-focus">0</span><span class="stat-unit">分</span></div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">累計完了タスク</div>
+                        <div class="stat-value"><span id="stat-total-tasks">0</span><span class="stat-unit">個</span></div>
                     </div>
                 </div>
-                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.4rem;">● 進行中</div>
-                <div class="ongoing-tasks-container" id="ongoing-list"></div>
-                <div style="font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; margin: 1.5rem 0 0.4rem;">✓ 完了済み</div>
-                <div class="completed-tasks-container" id="completed-list"></div>
+
+                <div class="chart-section">
+                    <h3 class="settings-title">過去7日間の集中時間 (分)</h3>
+                    <div class="chart-container" id="weekly-chart">
+                        <!-- Bars generated by JS -->
+                    </div>
+                    <div class="chart-labels" id="weekly-labels">
+                        <!-- Labels generated by JS -->
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- Statistics Tab -->
-        <section id="stats" class="tab-content">
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <div id="stat-today" class="stat-value">0h 0m</div>
-                    <div class="stat-label">今日の学習</div>
-                </div>
-                <div class="stat-card">
-                    <div id="stat-total" class="stat-value">0h 0m</div>
-                    <div class="stat-label">全期間合計</div>
-                </div>
-            </div>
-            <div class="card" style="text-align: left;">
-                <h2 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">直近7日間の学習時間</h2>
-                <div id="chart-area" class="chart-container">
-                    <!-- JSで描画 -->
-                </div>
-            </div>
-            <div class="card" style="text-align: left;">
-                <h2 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem;">最近の履歴</h2>
-                <div id="history-list" style="max-height: 200px; overflow-y: auto;">
-                    <!-- JSで描画 -->
-                </div>
-            </div>
-        </section>
     </main>
 
-    <!-- Navigation -->
+    <!-- Navigation Bar -->
     <nav class="bottom-nav">
-        <button onclick="switchTab('timer')" id="nav-timer" class="nav-item active">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <button onclick="switchTab('timer', '集中タイマー')" id="nav-timer" class="nav-item active">
+            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             <span>タイマー</span>
         </button>
-        <button onclick="switchTab('flashcards')" id="nav-flashcards" class="nav-item">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+        <button onclick="switchTab('flashcards', '暗記カード')" id="nav-flashcards" class="nav-item">
+            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
             <span>カード</span>
         </button>
-        <button onclick="switchTab('todo')" id="nav-todo" class="nav-item">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+        <button onclick="switchTab('todo', 'TODOリスト')" id="nav-todo" class="nav-item">
+            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
             <span>タスク</span>
         </button>
-        <button onclick="switchTab('stats')" id="nav-stats" class="nav-item">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+        <button onclick="switchTab('stats', '学習統計')" id="nav-stats" class="nav-item">
+            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
             <span>統計</span>
         </button>
     </nav>
 
-    <!-- Modals -->
+    <!-- Add Card Modal -->
     <div id="card-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-bottom:0.75rem; font-size:1rem;">カード追加</h3>
-            <select id="card-group-select" class="input-field"></select>
-            <textarea id="card-q" class="input-field" placeholder="問題" rows="2"></textarea>
-            <textarea id="card-a" class="input-field" placeholder="答え" rows="2"></textarea>
-            <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
-                <button onclick="toggleCardModal()" style="background:none; border:none; font-size:0.8rem;">閉じる</button>
-                <button onclick="addCard()" style="background:var(--primary); color:white; border:none; padding:0.4rem 0.8rem; border-radius:0.5rem; font-size:0.8rem;">保存</button>
+            <h3>新しいカードを追加</h3>
+            <textarea id="card-q" class="modal-textarea" rows="2" placeholder="問題を入力..."></textarea>
+            <textarea id="card-a" class="modal-textarea" rows="2" placeholder="答えを入力..."></textarea>
+            <div class="modal-actions">
+                <button onclick="toggleCardModal()" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">キャンセル</button>
+                <button onclick="addCard()" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer;">保存</button>
             </div>
         </div>
     </div>
 
-    <div id="group-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 style="margin-bottom:0.75rem; font-size:1rem;">グループ作成</h3>
-            <input type="text" id="group-name-input" class="input-field" placeholder="グループ名">
-            <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
-                <button onclick="toggleGroupModal()" style="background:none; border:none; font-size:0.8rem;">閉じる</button>
-                <button onclick="addGroup()" style="background:var(--primary); color:white; border:none; padding:0.4rem 0.8rem; border-radius:0.5rem; font-size:0.8rem;">作成</button>
-            </div>
-        </div>
-    </div>
-    <script>
-         // --- DATA ---
-        let cards = JSON.parse(localStorage.getItem('study_cards')) || [];
-        let groups = JSON.parse(localStorage.getItem('study_groups')) || ["すべて"];
-        let todos = JSON.parse(localStorage.getItem('study_todos')) || [];
-        let studyHistory = JSON.parse(localStorage.getItem('study_history')) || {}; // { 'YYYY-MM-DD': minutes }
-        let timerSettings = JSON.parse(localStorage.getItem('study_timer_settings')) || { focus: 25, break: 5, silent: false };
-        
-        let activeGroup = "すべて";
-        let currentCardIndex = 0;
-        let isCardFlipped = false;
-
-        // --- AUDIO ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let isAudioEnabled = false;
-
-        function playAlarm() {
-            if (timerSettings.silent || !isAudioEnabled) return;
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.3);
-        }
-
-        // --- UTILS ---
-        function getTodayStr() {
-            return new Date().toISOString().split('T')[0];
-        }
-
-        function formatMins(totalMins) {
-            const h = Math.floor(totalMins / 60);
-            const m = totalMins % 60;
-            return `${h}h ${m}m`;
-        }
-
-        // --- HISTORY & STATS ---
-        function recordStudySession(mins) {
-            const today = getTodayStr();
-            studyHistory[today] = (studyHistory[today] || 0) + mins;
-            localStorage.setItem('study_history', JSON.stringify(studyHistory));
-            renderStats();
-        }
-
-        function renderStats() {
-            const todayStr = getTodayStr();
-            const todayMins = studyHistory[todayStr] || 0;
-            let totalMins = 0;
-            Object.values(studyHistory).forEach(m => totalMins += m);
-
-            document.getElementById('stat-today').textContent = formatMins(todayMins);
-            document.getElementById('stat-total').textContent = formatMins(totalMins);
-
-            // Chart
-            const chartArea = document.getElementById('chart-area');
-            chartArea.innerHTML = '';
-            const last7Days = [];
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                last7Days.push(d.toISOString().split('T')[0]);
-            }
-
-            const maxMins = Math.max(...last7Days.map(d => studyHistory[d] || 0), 60);
-
-            last7Days.forEach(dayStr => {
-                const mins = studyHistory[dayStr] || 0;
-                const heightPercent = (mins / maxMins) * 100;
-                const dateObj = new Date(dayStr);
-                const label = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
-
-                const barWrapper = document.createElement('div');
-                barWrapper.className = 'chart-bar-wrapper';
-                barWrapper.innerHTML = `
-                    <div class="chart-bar" style="height: ${heightPercent}%" title="${mins}分"></div>
-                    <div class="chart-day">${label}</div>
-                `;
-                chartArea.appendChild(barWrapper);
-            });
-
-            // History List
-            const historyList = document.getElementById('history-list');
-            const sortedDates = Object.keys(studyHistory).sort().reverse();
-            if (sortedDates.length === 0) {
-                historyList.innerHTML = '<p style="font-size:0.75rem; color:var(--text-light); text-align:center;">履歴はありません</p>';
-            } else {
-                historyList.innerHTML = sortedDates.map(date => `
-                    <div style="display:flex; justify-content:space-between; padding: 0.5rem 0; border-bottom:1px solid #f1f5f9; font-size:0.8rem;">
-                        <span style="color:var(--text-muted);">${date}</span>
-                        <span style="font-weight:600;">${formatMins(studyHistory[date])}</span>
-                    </div>
-                `).join('');
-            }
-        }
-
-        // --- TIMER ---
-        let isFocusMode = true;
-        let timerSeconds = timerSettings.focus * 60;
-        let timerInterval = null;
-        const CIRCUMFERENCE = 691;
-
-        document.getElementById('focus-input').value = timerSettings.focus;
-        document.getElementById('break-input').value = timerSettings.break;
-        document.getElementById('silent-mode-toggle').checked = timerSettings.silent;
-
-        document.getElementById('silent-mode-toggle').onchange = function() {
-            timerSettings.silent = this.checked;
-            localStorage.setItem('study_timer_settings', JSON.stringify(timerSettings));
-        };
-
-        function updateTimerDisplay() {
-            const mins = Math.floor(timerSeconds / 60);
-            const secs = timerSeconds % 60;
-            document.getElementById('timer-display').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            const total = (isFocusMode ? timerSettings.focus : timerSettings.break) * 60;
-            const offset = CIRCUMFERENCE - (timerSeconds / (total || 1)) * CIRCUMFERENCE;
-            document.getElementById('timer-progress').style.strokeDashoffset = isNaN(offset) ? 0 : offset;
-            
-            const status = document.getElementById('timer-status');
-            status.textContent = isFocusMode ? "Focus" : "Break";
-            status.style.color = isFocusMode ? "var(--primary)" : "var(--secondary)";
-            document.getElementById('timer-progress').style.color = isFocusMode ? "var(--primary)" : "var(--secondary)";
-        }
-
-        function applyTimerSettings() {
-            timerSettings.focus = parseInt(document.getElementById('focus-input').value) || 25;
-            timerSettings.break = parseInt(document.getElementById('break-input').value) || 5;
-            localStorage.setItem('study_timer_settings', JSON.stringify(timerSettings));
-            resetTimer();
-        }
-
-        function resetTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            isFocusMode = true;
-            timerSeconds = timerSettings.focus * 60;
-            document.getElementById('timer-toggle').textContent = 'スタート';
-            updateTimerDisplay();
-        }
-
-        document.getElementById('timer-toggle').onclick = function() {
-            if (!isAudioEnabled) { audioCtx.resume(); isAudioEnabled = true; }
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                this.textContent = '再開';
-            } else {
-                this.textContent = '一時停止';
-                timerInterval = setInterval(() => {
-                    if (timerSeconds > 0) {
-                        timerSeconds--;
-                        updateTimerDisplay();
-                    } else {
-                        clearInterval(timerInterval);
-                        timerInterval = null;
-                        playAlarm();
-                        
-                        // Record Focus Time if session finished
-                        if (isFocusMode) {
-                            recordStudySession(timerSettings.focus);
-                        }
-
-                        isFocusMode = !isFocusMode;
-                        timerSeconds = (isFocusMode ? timerSettings.focus : timerSettings.break) * 60;
-                        this.textContent = 'スタート';
-                        updateTimerDisplay();
-                    }
-                }, 1000);
-            }
-        };
-        document.getElementById('timer-reset').onclick = resetTimer;
-
-        // --- TABS ---
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-' + tabId).classList.add('active');
-            if (tabId === 'stats') renderStats();
-        }
-
-        // --- FLASHCARDS ---
-        function toggleGroupModal() {
-            const m = document.getElementById('group-modal');
-            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
-        }
-        function toggleCardModal() {
-            const m = document.getElementById('card-modal');
-            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
-        }
-
-        function addGroup() {
-            const name = document.getElementById('group-name-input').value.trim();
-            if (name && !groups.includes(name)) {
-                groups.push(name);
-                localStorage.setItem('study_groups', JSON.stringify(groups));
-                document.getElementById('group-name-input').value = '';
-                renderGroups(); toggleGroupModal();
-            }
-        }
-
-        function renderGroups() {
-            const container = document.getElementById('group-tabs');
-            container.innerHTML = '';
-            groups.forEach(g => {
-                const pill = document.createElement('div');
-                pill.className = `group-pill ${activeGroup === g ? 'active' : ''}`;
-                pill.textContent = g;
-                pill.onclick = () => {
-                    activeGroup = g;
-                    currentCardIndex = 0; isCardFlipped = false;
-                    renderGroups(); updateCardDisplay();
-                };
-                container.appendChild(pill);
-            });
-            const select = document.getElementById('card-group-select');
-            select.innerHTML = '';
-            groups.filter(g => g !== "すべて").forEach(g => {
-                const opt = document.createElement('option');
-                opt.value = g; opt.textContent = g;
-                select.appendChild(opt);
-            });
-        }
-
-        function addCard() {
-            const group = document.getElementById('card-group-select').value;
-            const q = document.getElementById('card-q').value.trim();
-            const a = document.getElementById('card-a').value.trim();
-            if (q && a && group) {
-                cards.push({ q, a, group });
-                localStorage.setItem('study_cards', JSON.stringify(cards));
-                document.getElementById('card-q').value = '';
-                document.getElementById('card-a').value = '';
-                toggleCardModal(); updateCardDisplay();
-            }
-        }
-
-        function getFilteredCards() {
-            return activeGroup === "すべて" ? cards : cards.filter(c => c.group === activeGroup);
-        }
-
-        function updateCardDisplay() {
-            const filtered = getFilteredCards();
-            const textEl = document.getElementById('card-text');
-            const counterEl = document.getElementById('card-counter');
-            const deleteBtn = document.getElementById('delete-card-btn');
-            
-            if (filtered.length === 0) {
-                textEl.textContent = activeGroup === "すべて" ? "カードなし" : "空のグループです";
-                counterEl.textContent = "0 / 0";
-                deleteBtn.style.display = 'none';
-                return;
-            }
-            deleteBtn.style.display = 'flex';
-            const card = filtered[currentCardIndex];
-            textEl.textContent = isCardFlipped ? card.a : card.q;
-            textEl.style.color = isCardFlipped ? 'var(--secondary)' : 'var(--text-main)';
-            counterEl.textContent = `${currentCardIndex + 1} / ${filtered.length}`;
-        }
-
-        document.getElementById('card-display').onclick = () => {
-            if (getFilteredCards().length > 0) { isCardFlipped = !isCardFlipped; updateCardDisplay(); }
-        };
-
-        function nextCard() {
-            const len = getFilteredCards().length;
-            if (len > 0) { currentCardIndex = (currentCardIndex + 1) % len; isCardFlipped = false; updateCardDisplay(); }
-        }
-        function prevCard() {
-            const len = getFilteredCards().length;
-            if (len > 0) { currentCardIndex = (currentCardIndex - 1 + len) % len; isCardFlipped = false; updateCardDisplay(); }
-        }
-        function deleteCurrentCard(e) {
-            e.stopPropagation();
-            if (confirm('削除しますか？')) {
-                const filtered = getFilteredCards();
-                const cardToDelete = filtered[currentCardIndex];
-                cards = cards.filter(c => c !== cardToDelete);
-                localStorage.setItem('study_cards', JSON.stringify(cards));
-                if (currentCardIndex >= getFilteredCards().length && currentCardIndex > 0) currentCardIndex--;
-                isCardFlipped = false; updateCardDisplay();
-            }
-        }
-
-        // --- TODO ---
-        function renderTodos() {
-            const ongoing = document.getElementById('ongoing-list');
-            const completed = document.getElementById('completed-list');
-            ongoing.innerHTML = ''; completed.innerHTML = '';
-            
-            todos.forEach((t, i) => {
-                const div = document.createElement('div');
-                div.className = 'todo-item';
-                div.innerHTML = `
-                    <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${i})" style="width:1rem; height:1rem;">
-                    <div class="todo-info">
-                        <span>${t.text}</span>
-                        ${t.date ? `<span class="todo-date">期限: ${t.date}</span>` : ''}
-                    </div>
-                    <button onclick="deleteTodo(${i})" style="background:none; border:none; color:var(--danger); font-size:0.6rem;">削除</button>
-                `;
-                if (t.done) completed.appendChild(div); else ongoing.appendChild(div);
-            });
-        }
-
-        document.getElementById('add-todo').onclick = () => {
-            const val = document.getElementById('todo-input').value.trim();
-            const date = document.getElementById('todo-date-input').value;
-            if (val) {
-                todos.push({ text: val, date: date, done: false });
-                localStorage.setItem('study_todos', JSON.stringify(todos));
-                document.getElementById('todo-input').value = '';
-                document.getElementById('todo-date-input').value = '';
-                renderTodos();
-            }
-        };
-
-        window.toggleTodo = (i) => { 
-            todos[i].done = !todos[i].done; 
-            localStorage.setItem('study_todos', JSON.stringify(todos)); 
-            renderTodos(); 
-        };
-        
-        window.deleteTodo = (i) => { 
-            todos.splice(i, 1); 
-            localStorage.setItem('study_todos', JSON.stringify(todos)); 
-            renderTodos(); 
-        };
-
-        // --- INIT ---
-        updateTimerDisplay(); renderGroups(); updateCardDisplay(); renderTodos(); renderStats()b;
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
-
-
 
